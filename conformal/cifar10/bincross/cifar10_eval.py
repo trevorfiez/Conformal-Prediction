@@ -45,17 +45,17 @@ import cifar10
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', '/scratch/tfiez/conformal/cifar10/softmax/cifar10_eval',
+tf.app.flags.DEFINE_string('eval_dir', '/scratch/tfiez/conformal/cifar10/bincross/cifar10_eval',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/cifar10_train',
+tf.app.flags.DEFINE_string('checkpoint_dir', '/scratch/tfiez/conformal/cifar10/bincross/trained_models',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
                             """How often to run the eval.""")
 tf.app.flags.DEFINE_integer('num_examples', 10000,
                             """Number of examples to run.""")
-tf.app.flags.DEFINE_boolean('run_once', False,
+tf.app.flags.DEFINE_boolean('run_once', True,
                          """Whether to run eval only once.""")
 
 
@@ -112,7 +112,13 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
     coord.request_stop()
     coord.join(threads, stop_grace_period_secs=10)
 
-def conformal_eval(saver, summary_writer, summary_op):
+def classes_predicted(preds):
+
+	subbed = preds - 0.5
+
+	
+
+def conformal_eval(saver, summary_writer, summary_op, logits, labels):
 	with tf.Session() as sess:
 		ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
 		if ckpt and ckpt.model_checkpoint_path:
@@ -122,10 +128,12 @@ def conformal_eval(saver, summary_writer, summary_op):
 			#   /my-favorite-path/cifar10_train/model.ckpt-0,
 			# extract global_step from it.
 			global_step = ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1]
-		for i in range(10):
+		coord = tf.train.Coordinator()		
+		'''
+		for i in range(1, 11):
 			top_k_op = tf.nn.in_top_k(logits, labels, i)
 
-			coord = tf.train.Coordinator()
+			
 			try:
 				threads = []
 				for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
@@ -144,7 +152,7 @@ def conformal_eval(saver, summary_writer, summary_op):
 			
 				recall = true_count / total_sample_count
 				precision = true_count / (total_sample_count * i)
-				print('Recall @ %d = %.3f' % (datetime.now(), i, recall))
+				print('Recall @ %d = %.3f' % (i, recall))
 				print('Precision @ %d = %.3f' % (i, precision))
 
 				summary = tf.Summary()
@@ -152,6 +160,51 @@ def conformal_eval(saver, summary_writer, summary_op):
 				summary.value.add(tag='Recall @ %d' % (i), simple_value=recall)
 				summary.value.add(tag='Precision @ %d' % (i), simple_value=precision) 
 				summary_writer.add_summary(summary, global_step)
+			except Exception as e:  # pylint: disable=broad-except
+				coord.request_stop(e)
+		'''
+		thresh = tf.constant(0.5, shape=logits.get_shape())
+		labels_dense = tf.one_hot(indices=labels, depth=10)
+		preds_sparse = tf.multiply(logits, labels_dense)
+
+		num_correct = tf.greater_equal(preds_sparse, thresh)
+		
+		num_predicted = tf.greater_equal(logits, thresh)		
+		
+		try:
+			threads = []
+			for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
+				threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
+							 start=True))
+
+			num_iter = int(math.ceil(FLAGS.num_examples / FLAGS.batch_size))
+			true_count = 0  # Counts the number of correct predictions.
+			total_predicted = 0
+			total_sample_count = num_iter * FLAGS.batch_size
+			step = 0
+			while step < num_iter and not coord.should_stop():
+				predictions = sess.run([num_correct])
+				batch_predicted = sess.run([num_predicted])
+				true_count += np.sum(predictions)
+				total_predicted += np.sum(batch_predicted)
+				step += 1
+
+		
+			recall = true_count / total_sample_count
+			precision = true_count / (total_predicted)
+			print('Recall = %.3f' % (recall))
+			print('Precision = %.3f' % (precision))
+
+			summary = tf.Summary()
+			summary.ParseFromString(sess.run(summary_op))
+			summary.value.add(tag='Recall', simple_value=recall)
+			summary.value.add(tag='Precision', simple_value=precision) 
+			summary_writer.add_summary(summary, global_step)
+		except Exception as e:  # pylint: disable=broad-except
+			coord.request_stop(e)
+		coord.request_stop()
+		coord.join(threads, stop_grace_period_secs=10)
+
 			
 		
 		
@@ -169,7 +222,7 @@ def evaluate():
     logits = cifar10.inference(images)
 
     # Calculate predictions.
-    top_k_op = tf.nn.in_top_k(logits, labels, 1)
+    #top_k_op = tf.nn.in_top_k(logits, labels, 1)
 
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(
@@ -182,9 +235,9 @@ def evaluate():
 
     summary_writer = tf.summary.FileWriter(FLAGS.eval_dir, g)
 
-    while True:
+    #while :
       #eval_once(saver, summary_writer, top_k_op, summary_op)
-      conformal_eval(saver, summary_writer, summary_op)
+    conformal_eval(saver, summary_writer, summary_op, logits, labels)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
