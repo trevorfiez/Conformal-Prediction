@@ -47,13 +47,59 @@ def color_monochromatic(image, kmeans):
 
 	return out_im
 
+def read_mono_pictures(image, pic_list):
+
+	pics = []
+
+	for name in pic_list:
+		pic = cv2.imread(name)
+		print(pic.shape)
+
+		y_scale = image.shape[0] / float(pic.shape[0])
+
+		x_scale = image.shape[1] / float(pic.shape[1])
+
+		scale = max(x_scale, y_scale)
+
+		new_x = max(int(scale * pic.shape[1]), image.shape[1])
+		new_y = max(int(scale * pic.shape[0]), image.shape[0])
+
+		resize_pic = cv2.resize(pic, (new_x, new_y))
+		print(resize_pic.shape)
+		pics.append(resize_pic)
+
+	return pics
+
+
+def picture_monochromatic(image, kmeans, picture_names):
+
+	pic_list = read_mono_pictures(image, picture_names)
+	
+	out_im = np.zeros(shape=image.shape, dtype="uint8")
+
+	kmeans_im = image.reshape((int(image.shape[0] * image.shape[1]), 3)).astype("float64") / 255.0\
+
+	#kmeans_im = cv2.blur(kmeans_im, (5, 5))
+
+	labels = kmeans.predict(kmeans_im)
+
+	labels = labels.reshape((image.shape[0], image.shape[1]))
+
+	for y in range(image.shape[0]):
+		for x in range(image.shape[1]):
+			
+			out_im[y, x, :] = pic_list[labels[y, x]][y, x, :]
+
+	return out_im
+
 
 def main(argv):
 	
-	opts, args = getopt.getopt(argv, "i:o:", ["input_image=", "out="])
+	opts, args = getopt.getopt(argv, "i:o:", ["input_image=", "out=", "picture_list="])
 
 	out_name = ""
 	in_name = ""
+	picture_list = []
 
 	for opt, arg in opts:
 		if opt in ("--input_image", "-i"):
@@ -61,14 +107,18 @@ def main(argv):
 			in_name = arg
 		elif opt in ("--out", "-o"):
 			out_name = arg
+		elif opt in ("--picture_list"):
+			picture_list = arg.split(':')
+
 	print("In name")
 	print(in_name)
 	image = cv2.imread(in_name)
+	image = cv2.transpose(image)
 
 	kmeans_cluster = get_clusters(image, 3)
 
-	out_image = color_monochromatic(image, kmeans_cluster)
-
+	#out_image = color_monochromatic(image, kmeans_cluster)
+	out_image = picture_monochromatic(image, kmeans_cluster, picture_list)
 	cv2.imwrite(out_name, out_image)
 
 if __name__ == "__main__":
