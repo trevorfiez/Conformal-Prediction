@@ -33,6 +33,7 @@ IMAGE_SIZE = 24
 NUM_CLASSES = 10
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
+LAST_TRAIN_BATCH = 4
 
 
 def read_cifar10(filename_queue):
@@ -149,7 +150,7 @@ def distorted_inputs(data_dir, batch_size):
     labels: Labels. 1D tensor of [batch_size] size.
   """
   filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
-               for i in xrange(1, 6)]
+               for i in xrange(1, LAST_TRAIN_BATCH + 1)]
   for f in filenames:
     if not tf.gfile.Exists(f):
       raise ValueError('Failed to find file: ' + f)
@@ -214,7 +215,7 @@ def inputs(eval_data, data_dir, batch_size):
   """
   if not eval_data:
     filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
-                 for i in xrange(1, 6)]
+                 for i in xrange(LAST_TRAIN_BATCH + 1, 6)]
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
   else:
     filenames = [os.path.join(data_dir, 'test_batch.bin')]
