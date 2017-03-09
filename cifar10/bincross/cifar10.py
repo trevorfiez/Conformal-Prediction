@@ -55,6 +55,9 @@ tf.app.flags.DEFINE_string('data_dir', '/scratch/tfiez/conformal/cifar10/cifar10
 tf.app.flags.DEFINE_boolean('use_fp16', False,
                             """Train the model using fp16.""")
 
+tf.app.flags.DEFINE_float('negative_weight', 1.0,
+			"""Weight for negative loss function""")
+
 # Global constants describing the CIFAR-10 data set.
 IMAGE_SIZE = cifar10_input.IMAGE_SIZE
 NUM_CLASSES = cifar10_input.NUM_CLASSES
@@ -288,9 +291,10 @@ def loss(predictions, labels):
   labels = tf.cast(labels, tf.int64)
 
   labels = tf.one_hot(indices=labels, depth=NUM_CLASSES)
-
-  neg_weights = tf.constant(0.111, shape=labels.get_shape())
-  pos_weights = tf.multiply(tf.constant(0.889, shape=labels.get_shape()), labels)
+  neg_weight = FLAGS.negative_weight
+  pos_weight_diff = 1.0 - neg_weight
+  neg_weights = tf.constant(neg_weight, shape=labels.get_shape())
+  pos_weights = tf.multiply(tf.constant(pos_weight_diff, shape=labels.get_shape()), labels)
   class_weights = tf.add(neg_weights, pos_weights)
   logloss = tf.losses.log_loss(labels=labels, predictions=predictions, weights=class_weights)
   logloss_mean = tf.reduce_mean(logloss, name='logloss')
