@@ -1,0 +1,48 @@
+------  100  -------
+Recall threshold: 0.848, Recall: 0.844, Precision: 0.860
+Recall threshold: 0.941, Recall: 0.938, Precision: 0.520
+Recall threshold: 0.970, Recall: 0.969, Precision: 0.333
+Recall threshold: 0.985, Recall: 0.982, Precision: 0.264
+Recall threshold: 0.993, Recall: 0.991, Precision: 0.216
+Recall threshold: 0.996, Recall: 0.995, Precision: 0.191
+Recall threshold: 0.998, Recall: 0.998, Precision: 0.166
+------  075  -------
+Recall threshold: 0.848, Recall: 0.843, Precision: 0.845
+Recall threshold: 0.941, Recall: 0.938, Precision: 0.542
+Recall threshold: 0.970, Recall: 0.969, Precision: 0.347
+Recall threshold: 0.985, Recall: 0.985, Precision: 0.261
+Recall threshold: 0.993, Recall: 0.993, Precision: 0.215
+Recall threshold: 0.996, Recall: 0.996, Precision: 0.196
+Recall threshold: 0.998, Recall: 0.998, Precision: 0.174
+------  05  -------
+Recall threshold: 0.848, Recall: 0.845, Precision: 0.836
+Recall threshold: 0.941, Recall: 0.938, Precision: 0.569
+Recall threshold: 0.970, Recall: 0.968, Precision: 0.397
+Recall threshold: 0.985, Recall: 0.983, Precision: 0.282
+Recall threshold: 0.993, Recall: 0.992, Precision: 0.232
+Recall threshold: 0.996, Recall: 0.996, Precision: 0.207
+Recall threshold: 0.998, Recall: 0.997, Precision: 0.182
+------  025  -------
+Recall threshold: 0.848, Recall: 0.842, Precision: 0.819
+Recall threshold: 0.941, Recall: 0.941, Precision: 0.596
+Recall threshold: 0.970, Recall: 0.971, Precision: 0.436
+Recall threshold: 0.985, Recall: 0.987, Precision: 0.312
+Recall threshold: 0.993, Recall: 0.994, Precision: 0.245
+Recall threshold: 0.996, Recall: 0.996, Precision: 0.212
+Recall threshold: 0.998, Recall: 0.998, Precision: 0.189
+------  005  -------
+Recall threshold: 0.848, Recall: 0.843, Precision: 0.710
+Recall threshold: 0.941, Recall: 0.945, Precision: 0.497
+Recall threshold: 0.970, Recall: 0.973, Precision: 0.393
+Recall threshold: 0.985, Recall: 0.987, Precision: 0.315
+Recall threshold: 0.993, Recall: 0.995, Precision: 0.254
+Recall threshold: 0.996, Recall: 0.996, Precision: 0.233
+Recall threshold: 0.998, Recall: 0.998, Precision: 0.204
+------  001  -------
+Recall threshold: 0.848, Recall: 0.841, Precision: 0.371
+Recall threshold: 0.941, Recall: 0.938, Precision: 0.275
+Recall threshold: 0.970, Recall: 0.971, Precision: 0.225
+Recall threshold: 0.985, Recall: 0.985, Precision: 0.196
+Recall threshold: 0.993, Recall: 0.994, Precision: 0.168
+Recall threshold: 0.996, Recall: 0.997, Precision: 0.156
+Recall threshold: 0.998, Recall: 0.999, Precision: 0.144
