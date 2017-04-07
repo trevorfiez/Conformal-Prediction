@@ -47,3 +47,17 @@ The top-k precision and recall is as follows:
 | 7 | 0.998 | 0.143 |
 | 8 | 0.999 | 0.125 |
 | 9 | 1.000 | 0.111 |
+
+
+## Tables for Different Weights ##
+
+Each table element is formatted as recall / precision / average set size.
+
+The title for each table denotes the weight on negative samples.
+
+### Weight 1.o ###
+
+| k | 1 |
+| :---: | :---: 
+| Top-k | 0.851 / 1.000 / 1.00 |
+| All-threshold | 0.847 / 0.858 / 0.99 |
